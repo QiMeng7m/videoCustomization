@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>锦言 · 视频祝词工坊</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0a0810;
+      color: #f5eef2;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .app-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .app-frame {
+      border: 2px dashed #4a3a55;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #120e16;
+      height: 100%;
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 56px 1fr 52px;
+      grid-template-columns: 300px 1fr 260px;
+    }
+    .header,
+    .footer-bar {
+      flex-shrink: 0;
+    }
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(30, 20, 40, 0.9);
+      border-bottom: 1px solid #3d2d48;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #e8a0bf, #9b5a72);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .logo span { font-size: 0.95rem; font-weight: 600; }
+    .logo small { display: block; font-size: 0.7rem; color: #9a8a9e; font-weight: 400; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      border: 1px solid #4a3a55;
+      background: transparent;
+      color: #d4c4d0;
+      cursor: pointer;
+    }
+    .btn:hover:not(:disabled) { border-color: #e8a0bf; color: #fff; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary {
+      background: #9b5a72;
+      border-color: #e8a0bf;
+      color: #fff;
+    }
+
+    .panel-left,
+    .panel-right {
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: #6a4a6a #1a1220;
+    }
+    .panel-left::-webkit-scrollbar,
+    .panel-right::-webkit-scrollbar {
+      width: 8px;
+    }
+    .panel-left::-webkit-scrollbar-track,
+    .panel-right::-webkit-scrollbar-track {
+      background: #1a1220;
+    }
+    .panel-left::-webkit-scrollbar-thumb,
+    .panel-right::-webkit-scrollbar-thumb {
+      background: #5a4060;
+      border-radius: 4px;
+    }
+    .panel-left::-webkit-scrollbar-thumb:hover,
+    .panel-right::-webkit-scrollbar-thumb:hover {
+      background: #e8a0bf;
+    }
+    .panel-left {
+      padding: 16px;
+      border-right: 1px solid #3d2d48;
+      background: rgba(25, 18, 32, 0.95);
+    }
+    .panel-center {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #0f0a14;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .panel-right {
+      padding: 16px;
+      border-left: 1px solid #3d2d48;
+      background: rgba(25, 18, 32, 0.85);
+    }
+
+    .block { margin-bottom: 18px; }
+    .block h3 {
+      font-size: 0.75rem;
+      color: #e8a0bf;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+    .block h3 em {
+      font-style: normal;
+      color: #6a5a6e;
+      margin-right: 6px;
+    }
+    .scene-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      padding: 5px 10px;
+      font-size: 0.72rem;
+      border-radius: 20px;
+      border: 1px solid #3d2d48;
+      background: #1a1220;
+      color: #b8a8b8;
+      cursor: pointer;
+    }
+    .chip.on { background: #4a2d42; border-color: #e8a0bf; color: #fff; }
+
+    .line-item {
+      border: 1px solid #3d2d48;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+    }
+    .line-item summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .line-item summary::-webkit-details-marker { display: none; }
+    .line-item strong { color: #e8d4e0; }
+    .line-detail {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .line-detail input[type="text"],
+    .line-detail select,
+    .digit-input {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #3d2d48;
+      background: #0f0a12;
+      color: #e8d4e0;
+      font-size: 0.72rem;
+    }
+    .digit-hint { font-size: 0.68rem; color: #6a5a6e; margin-top: 4px; }
+    .digit-select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #3d2d48;
+      background: #0f0a12;
+      color: #e8d4e0;
+      font-size: 0.72rem;
+      margin-bottom: 6px;
+    }
+    .digit-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    .digit-opts label { font-size: 0.68rem; color: #9a8a9e; display: block; margin-bottom: 4px; }
+    .line-add {
+      border: 1px dashed #4a3a55;
+      text-align: center;
+      padding: 8px;
+      cursor: pointer;
+      color: #9a8a9e;
+      border-radius: 8px;
+      font-size: 0.72rem;
+    }
+    .line-add:hover { border-color: #e8a0bf; color: #e8a0bf; }
+
+    .upload-box {
+      border: 1px dashed #5a4a65;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+      color: #9a8a9e;
+      cursor: pointer;
+    }
+    .upload-box:hover { border-color: #e8a0bf; }
+    .upload-box.ok { border-color: #7bed9f66; color: #7bed9f; }
+    .upload-box .icon { font-size: 1.4rem; margin-bottom: 4px; }
+
+    .ctrl-row {
+      font-size: 0.7rem;
+      color: #9a8a9e;
+      margin: 8px 0 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      background: #2a2030;
+      border-radius: 2px;
+      margin: 4px 0 8px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px; height: 12px;
+      background: #e8a0bf;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .fx-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .fx-card {
+      border: 1px solid #3d2d48;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.68rem;
+      text-align: center;
+      cursor: pointer;
+    }
+    .fx-card.on { border-color: #e8a0bf; box-shadow: 0 0 0 1px #e8a0bf; }
+    .fx-thumb {
+      height: 36px;
+      background: linear-gradient(135deg, #2d1b4e, #5c3d8a);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+    .fx-card.cyber .fx-thumb {
+      background: linear-gradient(135deg, #050508, #1a1030);
+      border: 1px solid #00ccff44;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .theme-card {
+      border: 1px solid #3d2d48;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.68rem;
+      cursor: pointer;
+      text-align: left;
+    }
+    .theme-card.on { border-color: #e8a0bf; box-shadow: 0 0 0 1px #e8a0bf; }
+    .theme-card .theme-icon { font-size: 1.2rem; display: block; margin-bottom: 4px; }
+    .theme-card strong { display: block; color: #e8d4e0; font-size: 0.72rem; margin-bottom: 2px; }
+    .theme-card small { color: #8a7a8e; font-size: 0.62rem; }
+    .theme-colors { display: flex; gap: 3px; margin-top: 6px; height: 4px; border-radius: 2px; overflow: hidden; }
+    .theme-colors i { flex: 1; }
+    .block-desc { font-size: 0.65rem; color: #6a5a6e; margin: -4px 0 8px; line-height: 1.4; }
+
+    .preview-toolbar {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 0.72rem;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #1f1528;
+      border: 1px solid #3d2d48;
+      color: #c4b4c4;
+    }
+    .badge.live { border-color: #7bed9f66; color: #7bed9f; }
+    .badge.live::before {
+      content: "";
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #7bed9f;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.4; } }
+
+    .phone-frame {
+      width: 280px;
+      height: 498px;
+      border-radius: 28px;
+      border: 3px solid #4a3a55;
+      box-shadow: 0 0 40px rgba(232, 160, 191, 0.15), inset 0 0 60px rgba(0,0,0,0.4);
+      overflow: hidden;
+      position: relative;
+      background: #0f0a12;
+    }
+    #preview-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .preview-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      font-size: 0.72rem;
+    }
+
+    .timeline {
+      font-size: 0.7rem;
+      color: #9a8a9e;
+    }
+    .tl-track {
+      height: 28px;
+      background: #1a1220;
+      border-radius: 6px;
+      margin: 8px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .tl-active {
+      position: absolute;
+      height: 100%;
+      background: rgba(232, 160, 191, 0.25);
+      border-left: 2px solid #e8a0bf;
+      border-right: 2px solid #e8a0bf;
+      pointer-events: none;
+    }
+    .tl-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      font-size: 0.68rem;
+    }
+    .tl-bar {
+      flex: 1;
+      height: 8px;
+      background: #2a2030;
+      border-radius: 4px;
+      position: relative;
+    }
+    .tl-bar span {
+      position: absolute;
+      height: 100%;
+      border-radius: 4px;
+      background: #9b5a72;
+    }
+
+    .footer-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      border-top: 1px solid #3d2d48;
+      background: rgba(20, 14, 26, 0.95);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      background: #3d2548;
+      border: 1px solid #e8a0bf;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+
+    .export-progress {
+      font-size: 0.72rem;
+      color: #7bed9f;
+      margin-left: 8px;
+    }
+
+    #boot-warn {
+      display: none;
+      flex-shrink: 0;
+      max-width: 1400px;
+      margin: 0 auto 12px;
+      width: 100%;
+      padding: 12px 16px;
+      background: #4a2030;
+      border: 1px solid #e8a0bf;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      color: #ffd4e8;
+      line-height: 1.5;
+    }
+    .file-protocol #boot-warn { display: block; }
+
+    @media (max-width: 900px) {
+      body { padding: 12px; }
+      .app-frame {
+        grid-template-columns: 1fr;
+        grid-template-rows: 56px minmax(0, 38vh) 1fr minmax(0, 28vh) 52px;
+      }
+      .panel-left { max-height: none; }
+      .panel-right { border-left: none; border-top: 1px solid #3d2d48; }
+    }
+  </style>
+</head>
+<body>
+  <div id="boot-warn">
+    ⚠️ 当前是直接打开本地 HTML，脚本无法加载，场景/预览/导出都不会工作。
+    请在项目目录打开终端执行 <code>python -m http.server 8765</code>，再访问
+    <a href="http://localhost:8765/" style="color:#7bed9f">http://localhost:8765/</a>
+  </div>
+  <div class="app-wrap">
+    <div class="app-frame">
+      <header class="header">
+        <div class="logo">
+          <div class="logo-icon">锦</div>
+          <div>
+            <span>锦言视频祝词工坊</span>
+            <small>上传 · 文案 · 特效 · 导出</small>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn" id="btn-random">随机灵感</button>
+          <button type="button" class="btn" id="btn-draft">保存草稿</button>
+        </div>
+      </header>
+
+      <aside class="panel-left">
+        <div class="block">
+          <h3><em>01</em> 祝福场景</h3>
+          <p class="block-desc">选场合，一键填充祝词模板（与视觉主题无关）</p>
+          <div class="scene-tabs" id="scene-tabs">
+            <span class="chip" data-scene="newyear">过年</span>
+            <span class="chip on" data-scene="birthday">生日</span>
+            <span class="chip" data-scene="wedding">婚礼</span>
+            <span class="chip" data-scene="graduate">毕业</span>
+            <span class="chip" data-scene="festival">端午</span>
+            <span class="chip" data-scene="business">开业</span>
+            <span class="chip" data-scene="house">乔迁</span>
+          </div>
+        </div>
+        <div class="block">
+          <h3><em>02</em> 主题风格</h3>
+          <p class="block-desc">配色、背景、字体气质：赛博、国风、浪漫等</p>
+          <div class="theme-grid" id="theme-grid"></div>
+        </div>
+        <div class="block" id="digit-pop-block">
+          <h3><em>03</em> 弹跳数字</h3>
+          <div class="ctrl-row"><span>逐字弹出</span><span id="digit-count">0 位</span></div>
+          <input type="text" class="digit-input" id="digit-input" placeholder="输入数字，如 1008、2026、18" maxlength="12" autocomplete="off" />
+          <div class="digit-opts">
+            <div>
+              <label for="digit-entrance">出现方式</label>
+              <select class="digit-select" id="digit-entrance"></select>
+            </div>
+            <div>
+              <label for="digit-loop-effect">数字效果</label>
+              <select class="digit-select" id="digit-loop-effect"></select>
+            </div>
+          </div>
+          <p class="digit-hint">不输入则不显示数字；有数字时下方祝词会自动下移留出空隙</p>
+        </div>
+        <div class="block">
+          <h3><em>04</em> 自定义文案</h3>
+          <div id="text-lines">
+            <details class="line-item open" open>
+              <summary><strong>行1 · 标题</strong> 火火老师生日快乐 ▾</summary>
+            </details>
+            <details class="line-item open" open>
+              <summary><strong>行2 · 副标题</strong> 愿每一天都如花般绚烂 ▾</summary>
+            </details>
+            <details class="line-item open" open>
+              <summary><strong>行3 · 正文</strong> 永远开心美丽 ✨ ▾</summary>
+            </details>
+            <details class="line-item open" open>
+              <summary><strong>行4 · 署名</strong> 敬上 ▾</summary>
+            </details>
+          </div>
+          <div class="line-add" id="btn-add-line">+ 增加一行</div>
+        </div>
+        <div class="block">
+          <h3><em>05</em> 媒体素材</h3>
+          <input type="file" id="input-video" accept="video/mp4,video/webm,video/quicktime" hidden />
+          <input type="file" id="input-audio" accept="audio/mpeg,audio/wav,audio/mp4,audio/*" hidden />
+          <div class="upload-box" id="upload-video">
+            <div class="icon">🎬</div>上传视频<br><small>mp4 / webm</small>
+          </div>
+          <div class="upload-box" id="upload-audio">
+            <div class="icon">🎵</div>上传音乐<br><small>mp3 / wav</small>
+          </div>
+        </div>
+        <div class="block">
+          <h3><em>06</em> 视频调节</h3>
+          <div class="ctrl-row"><span>裁剪入点</span><span id="val-trim-start">0:00</span></div>
+          <input type="range" id="trim-start" min="0" max="100" value="0" />
+          <div class="ctrl-row"><span>裁剪出点</span><span id="val-trim-end">0:15</span></div>
+          <input type="range" id="trim-end" min="0" max="100" value="100" />
+          <div class="ctrl-row"><span>视频音量</span><span id="val-vol-video">80%</span></div>
+          <input type="range" id="vol-video" min="0" max="100" value="80" />
+          <div class="ctrl-row"><span>BGM 音量</span><span id="val-vol-audio">70%</span></div>
+          <input type="range" id="vol-audio" min="0" max="100" value="70" />
+          <div class="ctrl-row"><span>视频透明度</span><span id="val-opacity">85%</span></div>
+          <input type="range" id="video-opacity" min="0" max="100" value="85" />
+          <label class="ctrl-row" style="cursor:pointer">
+            <span>静音原声</span>
+            <input type="checkbox" id="mute-original" />
+          </label>
+        </div>
+        <div class="block">
+          <h3><em>07</em> 装饰特效</h3>
+          <p class="block-desc">粒子、烟花、彩带、闪光等，可叠加；主题只改外观</p>
+          <div class="fx-grid" id="fx-grid">
+            <div class="fx-card on" data-fx="fx-firework-burst">
+              <div class="fx-thumb" style="background:#1a0500"></div>
+              烟花绽放
+            </div>
+            <div class="fx-card on" data-fx="fx-confetti-classic">
+              <div class="fx-thumb" style="background:#0d3320"></div>
+              彩带满屏
+            </div>
+            <div class="fx-card on" data-fx="fx-particle-starfield">
+              <div class="fx-thumb"></div>
+              星空粒子
+            </div>
+            <div class="fx-card" data-fx="fx-aurora-bg">
+              <div class="fx-thumb"></div>
+              极光氛围
+            </div>
+            <div class="fx-card cyber" data-fx="fx-neon-grid">
+              <div class="fx-thumb" style="background:linear-gradient(135deg,#050508,#1a1030);border:1px solid #00ccff44"></div>
+              霓虹网格
+            </div>
+            <div class="fx-card" data-fx="fx-shockwave-flash">
+              <div class="fx-thumb" style="background:#2a2030"></div>
+              冲击波闪光
+            </div>
+          </div>
+          <div class="ctrl-row" style="margin-top:10px"><span>特效层透明度</span><span id="val-fx-opacity">100%</span></div>
+          <input type="range" id="fx-opacity" min="20" max="100" value="100" />
+        </div>
+      </aside>
+
+      <main class="panel-center">
+        <div class="preview-toolbar">
+          <span class="badge live">实时特效预览</span>
+          <span class="badge" id="badge-fx">生日派对 · 烟花</span>
+          <button type="button" class="btn" id="btn-fullscreen">⛶ 全屏</button>
+        </div>
+        <div class="phone-frame" id="phone-frame">
+          <canvas id="preview-canvas" width="720" height="1280"></canvas>
+        </div>
+        <div class="preview-actions">
+          <button type="button" class="btn" id="btn-play">▶ 播放</button>
+          <button type="button" class="btn" id="btn-replay-fx">⟳ 重播动效</button>
+          <span class="export-progress" id="export-status"></span>
+        </div>
+      </main>
+
+      <aside class="panel-right">
+        <div class="block">
+          <h3>时间轴</h3>
+          <div class="timeline" id="timeline-label">00:00 / 00:15</div>
+          <div class="tl-track"><div class="tl-active" id="tl-trim-visual"></div></div>
+          <div class="tl-row">视频轨 <div class="tl-bar"><span id="tl-video-bar" style="left:15%;width:55%"></span></div></div>
+          <div class="tl-row">文案轨 <div class="tl-bar"><span id="tl-text-bar" style="left:30%;width:40%;background:#e8a0bf"></span></div></div>
+          <div class="tl-row">BGM轨 <div class="tl-bar"><span id="tl-bgm-bar" style="left:0;width:100%;background:#5c7a9b"></span></div></div>
+        </div>
+        <div class="block">
+          <h3>特效强度</h3>
+          <input type="range" id="fx-intensity" min="40" max="150" value="100" />
+          <button type="button" class="btn" id="btn-replay-tl" style="width:100%;margin-top:10px">⟳ 重播动效</button>
+        </div>
+      </aside>
+
+      <footer class="footer-bar">
+        <button type="button" class="btn" id="btn-export-gif">导出 GIF 封面</button>
+        <button type="button" class="btn btn-primary" id="btn-export">导出 MP4 视频</button>
+      </footer>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    if (location.protocol === "file:") document.documentElement.classList.add("file-protocol");
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
