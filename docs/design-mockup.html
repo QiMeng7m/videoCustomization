@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>锦言 · 界面设计图（可交互线框）</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0a0810;
+      color: #f5eef2;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .doc-bar {
+      max-width: 1400px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .doc-bar h1 { font-size: 1.25rem; font-weight: 600; }
+    .doc-bar p { font-size: 0.85rem; color: #9a8a9e; }
+    .tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .tabs button {
+      padding: 8px 16px;
+      border: 1px solid #3d2d48;
+      background: #1a1220;
+      color: #e8a0bf;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .tabs button.active {
+      background: #3d2548;
+      border-color: #e8a0bf;
+      color: #fff;
+    }
+    .screen { display: none; max-width: 1400px; margin: 0 auto; }
+    .screen.active { display: block; }
+
+    /* —— 主界面 —— */
+    .app-frame {
+      border: 2px dashed #4a3a55;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #120e16;
+      min-height: 720px;
+      display: grid;
+      grid-template-rows: 56px 1fr 52px;
+      grid-template-columns: 300px 1fr 260px;
+    }
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(30, 20, 40, 0.9);
+      border-bottom: 1px solid #3d2d48;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #e8a0bf, #9b5a72);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .logo span { font-size: 0.95rem; font-weight: 600; }
+    .logo small { display: block; font-size: 0.7rem; color: #9a8a9e; font-weight: 400; }
+    .header-actions { display: flex; gap: 8px; }
+    .btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      border: 1px solid #4a3a55;
+      background: transparent;
+      color: #d4c4d0;
+      cursor: default;
+    }
+    .btn-primary {
+      background: #9b5a72;
+      border-color: #e8a0bf;
+      color: #fff;
+    }
+
+    .panel-left {
+      padding: 16px;
+      border-right: 1px solid #3d2d48;
+      background: rgba(25, 18, 32, 0.95);
+      overflow-y: auto;
+    }
+    .panel-center {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #0f0a14;
+    }
+    .panel-right {
+      padding: 16px;
+      border-left: 1px solid #3d2d48;
+      background: rgba(25, 18, 32, 0.85);
+    }
+
+    .block { margin-bottom: 18px; }
+    .block h3 {
+      font-size: 0.75rem;
+      color: #e8a0bf;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+    .block h3 em {
+      font-style: normal;
+      color: #6a5a6e;
+      margin-right: 6px;
+    }
+    .scene-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      padding: 5px 10px;
+      font-size: 0.72rem;
+      border-radius: 20px;
+      border: 1px solid #3d2d48;
+      background: #1a1220;
+      color: #b8a8b8;
+    }
+    .chip.on { background: #4a2d42; border-color: #e8a0bf; color: #fff; }
+    .textarea-mock {
+      width: 100%;
+      height: 72px;
+      border: 1px dashed #4a3a55;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.75rem;
+      color: #8a7a8e;
+      background: #0f0a12;
+    }
+    .line-item {
+      border: 1px solid #3d2d48;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .line-item strong { color: #e8d4e0; }
+    .upload-box {
+      border: 1px dashed #5a4a65;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 0.75rem;
+      color: #9a8a9e;
+    }
+    .upload-box .icon { font-size: 1.4rem; margin-bottom: 4px; }
+    .slider-mock {
+      height: 4px;
+      background: #2a2030;
+      border-radius: 2px;
+      margin: 8px 0 4px;
+      position: relative;
+    }
+    .slider-mock::after {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; height: 100%;
+      width: 65%;
+      background: #e8a0bf;
+      border-radius: 2px;
+    }
+    .fx-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .fx-card {
+      border: 1px solid #3d2d48;
+      border-radius: 10px;
+      padding: 8px;
+      font-size: 0.68rem;
+      text-align: center;
+    }
+    .fx-card.on { border-color: #e8a0bf; box-shadow: 0 0 0 1px #e8a0bf; }
+    .fx-thumb {
+      height: 36px;
+      background: linear-gradient(135deg, #2d1b4e, #5c3d8a);
+      border-radius: 6px;
+      margin-bottom: 6px;
+    }
+    .fx-card.cyber .fx-thumb {
+      background: linear-gradient(135deg, #050508, #1a1030);
+      border: 1px solid #00ccff44;
+    }
+
+    .preview-toolbar {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 0.72rem;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #1f1528;
+      border: 1px solid #3d2d48;
+      color: #c4b4c4;
+    }
+    .badge.live { border-color: #7bed9f66; color: #7bed9f; }
+    .badge.live::before {
+      content: "";
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #7bed9f;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.4; } }
+
+    .phone-frame {
+      width: 280px;
+      height: 498px;
+      border-radius: 28px;
+      border: 3px solid #4a3a55;
+      box-shadow: 0 0 40px rgba(232, 160, 191, 0.15), inset 0 0 60px rgba(0,0,0,0.4);
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(160deg, #2d1b4e, #5c3d8a, #ff6b9d44);
+    }
+    .phone-inner {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .digit-row {
+      display: flex;
+      gap: 4px;
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 16px;
+      text-shadow: 0 0 20px rgba(255, 182, 193, 0.8);
+    }
+    .digit-row span {
+      background: linear-gradient(145deg, #fff, #ffb6c1, #ff69b4);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .preview-title {
+      font-size: 1.1rem;
+      color: #fff5fb;
+      margin-bottom: 8px;
+      text-shadow: 0 0 12px rgba(255, 105, 180, 0.5);
+    }
+    .preview-sub { font-size: 0.7rem; color: rgba(255, 220, 240, 0.85); letter-spacing: 0.2em; }
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .particles i {
+      position: absolute;
+      width: 4px; height: 4px;
+      background: #ffb6c1;
+      border-radius: 50%;
+    }
+    .particles i:nth-child(1) { top: 10%; left: 20%; }
+    .particles i:nth-child(2) { top: 30%; left: 80%; }
+    .particles i:nth-child(3) { top: 60%; left: 15%; }
+    .particles i:nth-child(4) { top: 75%; left: 70%; }
+    .particles i:nth-child(5) { top: 45%; left: 50%; }
+
+    .timeline {
+      font-size: 0.7rem;
+      color: #9a8a9e;
+    }
+    .tl-track {
+      height: 28px;
+      background: #1a1220;
+      border-radius: 6px;
+      margin: 8px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .tl-active {
+      position: absolute;
+      left: 15%; width: 55%; height: 100%;
+      background: rgba(232, 160, 191, 0.25);
+      border-left: 2px solid #e8a0bf;
+      border-right: 2px solid #e8a0bf;
+    }
+    .tl-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      font-size: 0.68rem;
+    }
+    .tl-bar {
+      flex: 1;
+      height: 8px;
+      background: #2a2030;
+      border-radius: 4px;
+      position: relative;
+    }
+    .tl-bar span {
+      position: absolute;
+      height: 100%;
+      border-radius: 4px;
+      background: #9b5a72;
+    }
+
+    .footer-bar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      border-top: 1px solid #3d2d48;
+      background: rgba(20, 14, 26, 0.95);
+    }
+
+    .anno {
+      max-width: 1400px;
+      margin: 16px auto 0;
+      padding: 16px 20px;
+      background: #1a1220;
+      border: 1px solid #3d2d48;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      color: #9a8a9e;
+      line-height: 1.6;
+    }
+    .anno strong { color: #e8a0bf; }
+
+    /* —— 流程图屏 —— */
+    .flow-wrap {
+      background: #120e16;
+      border: 2px dashed #4a3a55;
+      border-radius: 12px;
+      padding: 32px;
+    }
+    .flow-steps {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .flow-node {
+      padding: 14px 20px;
+      background: #1f1528;
+      border: 1px solid #4a3a55;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      text-align: center;
+      min-width: 100px;
+    }
+    .flow-node.highlight {
+      border-color: #e8a0bf;
+      background: #3d2548;
+    }
+    .flow-arrow { color: #6a5a6e; font-size: 1.2rem; }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+    @media (max-width: 900px) {
+      .arch-grid { grid-template-columns: 1fr; }
+      .app-frame {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr auto auto;
+      }
+      .panel-right { border-left: none; border-top: 1px solid #3d2d48; }
+    }
+
+    .arch-col {
+      border: 1px solid #3d2d48;
+      border-radius: 10px;
+      padding: 16px;
+      background: #1a1220;
+    }
+    .arch-col h4 {
+      font-size: 0.8rem;
+      color: #e8a0bf;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #3d2d48;
+    }
+    .arch-item {
+      padding: 8px 12px;
+      margin: 6px 0;
+      background: #0f0a12;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      border-left: 3px solid #9b5a72;
+    }
+    .arch-item.fx { border-left-color: #00ccff; }
+    .arch-item.out { border-left-color: #7bed9f; }
+  </style>
+</head>
+<body>
+  <div class="doc-bar">
+    <div>
+      <h1>锦言 · 视频祝词工坊 — 界面设计图</h1>
+      <p>可视化线框稿 · 用浏览器打开本文件即可查看 · 非最终实现 UI</p>
+    </div>
+    <div class="tabs">
+      <button type="button" class="active" data-screen="main">① 主界面布局</button>
+      <button type="button" data-screen="flow">② 用户流程</button>
+      <button type="button" data-screen="arch">③ 合成架构</button>
+    </div>
+  </div>
+
+  <!-- 主界面 -->
+  <div id="screen-main" class="screen active">
+    <div class="app-frame">
+      <header class="header">
+        <div class="logo">
+          <div class="logo-icon">锦</div>
+          <div>
+            <span>锦言视频祝词工坊</span>
+            <small>上传 · 文案 · 特效 · 导出</small>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button type="button" class="btn">随机灵感</button>
+          <button type="button" class="btn">保存草稿</button>
+        </div>
+      </header>
+
+      <aside class="panel-left">
+        <div class="block">
+          <h3><em>01</em> 祝福场景</h3>
+          <div class="scene-tabs">
+            <span class="chip">过年</span>
+            <span class="chip on">生日</span>
+            <span class="chip">婚礼</span>
+            <span class="chip">毕业</span>
+            <span class="chip">赛博</span>
+            <span class="chip">国风</span>
+          </div>
+        </div>
+        <div class="block">
+          <h3><em>02</em> 自定义文案</h3>
+          <div class="line-item"><strong>行1 · 标题</strong> 火火老师生日快乐 ▾</div>
+          <div class="line-item"><strong>行2 · 副标题</strong> 愿每一天都如花般绚烂 ▾</div>
+          <div class="line-item" style="opacity:0.6">+ 增加一行</div>
+        </div>
+        <div class="block">
+          <h3><em>03</em> 媒体素材</h3>
+          <div class="upload-box"><div class="icon">🎬</div>上传视频<br><small>mp4 / webm</small></div>
+          <div class="upload-box"><div class="icon">🎵</div>上传音乐<br><small>mp3 / wav</small></div>
+        </div>
+        <div class="block">
+          <h3><em>04</em> 视频调节</h3>
+          <div style="font-size:0.7rem;color:#9a8a9e;margin-bottom:4px">裁剪区间</div>
+          <div class="slider-mock"></div>
+          <div style="font-size:0.7rem;color:#9a8a9e">视频音量 · 透明度</div>
+          <div class="slider-mock" style="margin-top:8px"></div>
+        </div>
+        <div class="block">
+          <h3><em>05</em> 动效选择</h3>
+          <div class="fx-grid">
+            <div class="fx-card on">
+              <div class="fx-thumb"></div>
+              浪漫数字弹跳<br><small>demo 生日风</small>
+            </div>
+            <div class="fx-card cyber">
+              <div class="fx-thumb"></div>
+              赛博数字弹跳<br><small>demo 霓虹风</small>
+            </div>
+            <div class="fx-card"><div class="fx-thumb" style="background:#1a0500"></div>烟花绽放</div>
+            <div class="fx-card"><div class="fx-thumb" style="background:#0d3320"></div>彩带满屏</div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="panel-center">
+        <div class="preview-toolbar">
+          <span class="badge live">实时特效预览</span>
+          <span class="badge">生日 · 浪漫数字弹跳</span>
+          <span class="badge">⛶ 全屏</span>
+        </div>
+        <div class="phone-frame">
+          <div class="particles">
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="phone-inner">
+            <div class="digit-row">
+              <span>1</span><span>0</span><span>0</span><span>8</span>
+            </div>
+            <p class="preview-title">火火老师生日快乐</p>
+            <p class="preview-sub">愿每一天都如花般绚烂</p>
+          </div>
+        </div>
+        <p style="margin-top:12px;font-size:0.72rem;color:#6a5a6e">中央：9:16 竖屏预览 Canvas</p>
+      </main>
+
+      <aside class="panel-right">
+        <div class="block">
+          <h3>时间轴</h3>
+          <div class="timeline">00:00 / 00:15</div>
+          <div class="tl-track"><div class="tl-active"></div></div>
+          <div class="tl-row">视频轨 <div class="tl-bar"><span style="left:15%;width:55%"></span></div></div>
+          <div class="tl-row">文案轨 <div class="tl-bar"><span style="left:30%;width:40%;background:#e8a0bf"></span></div></div>
+          <div class="tl-row">BGM轨 <div class="tl-bar"><span style="left:0;width:100%;background:#5c7a9b"></span></div></div>
+        </div>
+        <div class="block">
+          <h3>特效强度</h3>
+          <div class="slider-mock"></div>
+          <button type="button" class="btn" style="width:100%;margin-top:10px">⟳ 重播动效</button>
+        </div>
+      </aside>
+
+      <footer class="footer-bar">
+        <button type="button" class="btn">导出 GIF 封面</button>
+        <button type="button" class="btn btn-primary">导出 MP4 视频</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- 用户流程 -->
+  <div id="screen-flow" class="screen">
+    <div class="flow-wrap">
+      <p style="text-align:center;margin-bottom:24px;color:#9a8a9e;font-size:0.9rem">用户主流程（从进入到导出）</p>
+      <div class="flow-steps">
+        <div class="flow-node">开始</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">选择场景/风格</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">编辑多行文案</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">上传视频</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">裁剪/调音量</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">上传 BGM</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node highlight">选择动效包</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">实时预览</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node" style="border-color:#7bed9f">导出视频</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 合成架构 -->
+  <div id="screen-arch" class="screen">
+    <div class="flow-wrap">
+      <p style="text-align:center;margin-bottom:8px;color:#9a8a9e;font-size:0.9rem">Canvas 合成管线（自下而上叠层）</p>
+      <div class="arch-grid">
+        <div class="arch-col">
+          <h4>输入层</h4>
+          <div class="arch-item">HTMLVideo 底视频</div>
+          <div class="arch-item">Audio 原声 + BGM</div>
+          <div class="arch-item">TextLine × N 文案</div>
+          <div class="arch-item fx">EffectsEngine 粒子/数字动效</div>
+        </div>
+        <div class="arch-col">
+          <h4>合成层（单 Canvas）</h4>
+          <div class="arch-item">L0 背景渐变 / 极光</div>
+          <div class="arch-item">L1 视频 drawImage + 透明度</div>
+          <div class="arch-item fx">L2 烟花 / 彩带 / 数字弹跳</div>
+          <div class="arch-item">L3 多行祝词 + 动画</div>
+        </div>
+        <div class="arch-col">
+          <h4>输出层</h4>
+          <div class="arch-item out">屏幕实时预览 30fps</div>
+          <div class="arch-item out">MediaRecorder 导出 MP4/WebM</div>
+          <div class="arch-item out">导出后 resumeLivePreview</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="anno">
+    <strong>说明：</strong>Markdown 文档里是文字线框 + Mermaid 流程图；
+    本 HTML 为<strong>可打开的视觉设计图</strong>（线框级别，非高保真终稿）。
+    详细规格见 <code>docs/产品功能设计文档.md</code>、<code>docs/界面与动效设计图.md</code>。
+    若需要 Figma / PNG 高保真稿，可说明偏好后继续产出。
+  </p>
+
+  <script>
+    document.querySelectorAll(".tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("screen-" + btn.dataset.screen).classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>
