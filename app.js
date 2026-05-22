@@ -1,4 +1,4 @@
-import { EffectsEngine, FX_PRESETS } from "./effects-engine.js";
+import { EffectsEngine, FX_PRESETS, FX_CATEGORIES, SCENE_TO_FX } from "./effects-engine.js";
 import { MediaManager } from "./media-manager.js";
 
 const SCENES = {
@@ -62,11 +62,9 @@ const TEXT_EFFECTS = [
   { id: "zoom", label: "缩放弹入", icon: "💫" },
 ];
 
-const FX_LIST = Object.values(FX_PRESETS);
-
 const state = {
   scene: "newyear",
-  fx: "fireworks",
+  fx: "newyear",
   textEffect: "fade",
   templateIndex: 0,
 };
@@ -241,9 +239,24 @@ function renderSceneTabs() {
       renderSceneTabs();
       renderTemplates();
       syncTextareaFromTemplate();
+      applySceneTheme();
       pushPreview();
     });
   });
+}
+
+function applySceneTheme() {
+  const recommended = SCENE_TO_FX[state.scene];
+  if (recommended && FX_PRESETS[recommended]) {
+    state.fx = recommended;
+    engine.setPreset(state.fx);
+    engine.resetParticles();
+    renderFxPicker();
+  }
+}
+
+function isRecommendedFx(fxId) {
+  return SCENE_TO_FX[state.scene] === fxId;
 }
 
 function renderTemplates() {
@@ -272,14 +285,24 @@ function syncTextareaFromTemplate() {
 }
 
 function renderFxPicker() {
-  els.fxPicker.innerHTML = FX_LIST.map(
-    (fx) => `
-    <button type="button" class="fx-card${fx.id === state.fx ? " active" : ""}" data-fx="${fx.id}" title="${fx.label}">
-      <span class="fx-icon">${fx.icon}</span>
-      <span class="fx-label">${fx.label}</span>
-      <span class="fx-glow" style="background: radial-gradient(circle, ${fx.accent}44 0%, transparent 70%)"></span>
-    </button>`
-  ).join("");
+  els.fxPicker.innerHTML = FX_CATEGORIES.map((cat) => {
+    const cards = cat.themes
+      .map((tid) => {
+        const fx = FX_PRESETS[tid];
+        if (!fx) return "";
+        const rec = isRecommendedFx(tid);
+        return `
+        <button type="button" class="fx-card${fx.id === state.fx ? " active" : ""}${rec ? " recommended" : ""}" data-fx="${fx.id}" title="${fx.subtitle}">
+          ${rec ? '<span class="fx-rec">推荐</span>' : ""}
+          <span class="fx-icon">${fx.icon}</span>
+          <span class="fx-label">${fx.label}</span>
+          <span class="fx-sub">${fx.subtitle}</span>
+          <span class="fx-glow" style="background: radial-gradient(circle at 30% 30%, ${fx.accent}55, ${fx.bg[1]}99)"></span>
+        </button>`;
+      })
+      .join("");
+    return `<div class="fx-category"><h3 class="fx-cat-title">${cat.label}</h3><div class="fx-cat-grid">${cards}</div></div>`;
+  }).join("");
 
   els.fxPicker.querySelectorAll("[data-fx]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -289,7 +312,8 @@ function renderFxPicker() {
       replayEntrance();
       renderFxPicker();
       pushPreview();
-      showToast(`已切换：${FX_PRESETS[state.fx].label}`);
+      const fx = FX_PRESETS[state.fx];
+      showToast(`主题：${fx.label} · ${fx.subtitle}`);
     });
   });
 }
@@ -415,7 +439,8 @@ function randomInspire() {
   state.scene = sceneIds[Math.floor(Math.random() * sceneIds.length)];
   const list = TEMPLATES[state.scene];
   state.templateIndex = Math.floor(Math.random() * list.length);
-  state.fx = FX_LIST[Math.floor(Math.random() * FX_LIST.length)].id;
+  const allThemes = FX_CATEGORIES.flatMap((c) => c.themes);
+  state.fx = allThemes[Math.floor(Math.random() * allThemes.length)];
   state.textEffect = TEXT_EFFECTS[Math.floor(Math.random() * TEXT_EFFECTS.length)].id;
 
   renderSceneTabs();
@@ -674,9 +699,9 @@ async function init() {
 
   renderSceneTabs();
   renderTemplates();
-  renderFxPicker();
   renderTextEffectPicker();
   syncTextareaFromTemplate();
+  applySceneTheme();
   initEvents();
   pushPreview();
   resizeCanvas();
